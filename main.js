@@ -88,15 +88,6 @@ function get_value_of_four_kind(x){
     else return get_point(x[1]);
 }
 
-// function get_all_point(x){
-//     var points = new Array(13);
-//     for(var i=0; i<5; i++){
-//         var index = get_point(x[i]);
-//         if(points[index]) points[i] = points[i] + 1;
-//         else points[i] = 1;
-//     }
-//     return points;
-// }
 
 function is_three_of_a_kind(x){
     var result = new Array()
@@ -124,6 +115,17 @@ function is_one_pair(x){
     return result;
 }
 
+function are_two_pairs(x){
+    var result = new Array();
+    for(var i=1; i<5; i++){
+        if(get_point(x[i-1])==get_point(x[i])){
+            result.push(get_point(x[i]));
+        } 
+    }
+    if (result.length>1)    result.unshift(true);
+    return result;
+}
+
 
 function compare_poker(x){
     // return 0;
@@ -141,7 +143,7 @@ function compare_poker(x){
     if (is_white_straight_flush && (!is_black_straight_flush)) return 'White wins';
     var white_value = get_sum_value(white_cards);
     var black_value = get_sum_value(black_cards);
-    console.log(white_value, black_value);
+    console.log(black_value, white_value);
     if (is_white_straight_flush && is_black_straight_flush){
         if(white_value>black_value){
             return 'White wins';
@@ -178,7 +180,6 @@ function compare_poker(x){
     var white_has_one_pair = is_one_pair(white_cards);
     var is_black_full_house = black_has_three_of_a_kind[0] && black_has_one_pair[0];
     var is_white_full_house = white_has_three_of_a_kind[0] && white_has_one_pair[0];
-    // console.log(black_has_three_of_a_kind, white_has_three_of_a_kind);
     if (is_black_full_house && (!is_white_full_house)) return 'Black wins';
     if (is_white_full_house && (!is_black_full_house)) return 'White wins';
     if (is_white_full_house && is_black_full_house){
@@ -188,20 +189,109 @@ function compare_poker(x){
         else if(white_has_three_of_a_kind[1]<black_has_three_of_a_kind[1]){
             return 'Black wins';
         }
-        else if(white_has_one_pair[1]>black_has_one_pair[1]){
+        else{
+            return 'Tie';
+        }
+    }
+    // Flush
+    var is_black_flush = is_flush(black_cards);
+    var is_white_flush = is_flush(white_cards);
+    if (is_black_flush && (!is_white_flush)) return 'Black wins';
+    if (is_white_flush && (!is_black_flush)) return 'White wins';
+    if (is_white_flush && is_black_flush){
+        if(white_value>black_value){
             return 'White wins';
         }
-        else if(white_has_one_pair[1]<black_has_one_pair[1]){
+        else if(white_value<black_value){
             return 'Black wins';
         }
         else{
             return 'Tie';
         }
     }
+    // Straight
+    var is_black_straight = is_flush(black_cards);
+    var is_white_straight = is_flush(white_cards);
+    if (is_black_straight && (!is_white_straight)) return 'Black wins';
+    if (is_white_straight && (!is_black_straight)) return 'White wins';
+    if (is_white_straight && is_black_straight){
+        if(white_value>black_value){
+            return 'White wins';
+        }
+        else if(white_value<black_value){
+            return 'Black wins';
+        }
+        else{
+            return 'Tie';
+        }
+    }
+    // Three of a Kind
+    if (white_has_three_of_a_kind[0] && black_has_three_of_a_kind[0]){
+        if(white_has_three_of_a_kind[1]>black_has_three_of_a_kind[1]){
+            return 'White wins';
+        }
+        else if(white_has_three_of_a_kind[1]<black_has_three_of_a_kind[1]){
+            return 'Black wins';
+        }
+        else{
+            return 'Tie';
+        }
+    }
+    // two pairs
+    var is_black_two_pairs = are_two_pairs(black_cards);
+    var is_white_two_pairs = are_two_pairs(white_cards);
+    if (is_black_two_pairs[0] && (!is_white_two_pairs[0])) return 'Black wins';
+    if (is_white_two_pairs[0] && (!is_black_two_pairs[0])) return 'White wins';
+    if (is_white_two_pairs[0] && is_black_two_pairs[0]){
+        if(is_white_two_pairs[2]>is_black_two_pairs[2]){
+            return 'White wins';
+        }
+        else if(is_white_two_pairs[2]<is_black_two_pairs[2]){
+            return 'Black wins';
+        }
+        else if(is_white_two_pairs[1]<is_black_two_pairs[1]){
+            return 'Black wins';
+        }
+        if(is_white_two_pairs[1]>is_black_two_pairs[1]){
+            return 'White wins';
+        }
+        else if(white_value>black_value){
+            return 'White wins';
+        }
+        else if(white_value<black_value){
+            return 'Black wins';
+        }
+        else{
+            return 'Tie';
+        }
+    }
+    // one pair
+    if (black_has_one_pair[0] && (!white_has_one_pair)) return 'Black wins';
+    if (white_has_one_pair[0] && (!black_has_one_pair[0])) return 'White wins';
+    if (white_has_one_pair[0] && black_has_one_pair[0]){
+        if(white_has_one_pair[1]>black_has_one_pair[1]){
+            return 'White wins';
+        }
+        else if(white_has_one_pair[1]<black_has_one_pair[1]){
+            return 'Black wins';
+        }
+    }
+    // others
+    if(get_point(white_cards[4])>get_point(black_cards[4])) return 'White wins';
+    else if(get_point(white_cards[4])<get_point(black_cards[4])) return 'Black wins';
+    if(get_point(white_cards[3])>get_point(black_cards[3])) return 'White wins';
+    else if(get_point(white_cards[3])<get_point(black_cards[3])) return 'Black wins';
+    if(get_point(white_cards[2])>get_point(black_cards[2])) return 'White wins';
+    else if(get_point(white_cards[2])<get_point(black_cards[2])) return 'Black wins';
+    if(get_point(white_cards[1])>get_point(black_cards[1])) return 'White wins';
+    else if(get_point(white_cards[1])<get_point(black_cards[1])) return 'Black wins';
+    if(get_point(white_cards[0])>get_point(black_cards[0])) return 'White wins';
+    else if(get_point(white_cards[0])<get_point(black_cards[0])) return 'Black wins';
+    else return 'Tie';
 }
 
 module.exports = compare_poker;
 
-var a=compare_poker("Black: 2H 2H 2H AH AH White: 9S 7S 9S TS 9S");
+var a = compare_poker('Black: 2H 3D 5S 9C KD White: 2C 3H 4S 8C AH');
 console.log(a)
 // sort_poker("Black: 2H 4S 4C 2D 4H White: 2S 8S AS QS 3S");
